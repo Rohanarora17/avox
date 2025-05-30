@@ -4,6 +4,12 @@
       "candid": "src/avox_backend/avox_backend.did",
       "package": "avox_backend",
       "type": "rust"
+    },
+    "icrc1_ledger": {
+      "type": "custom",
+      "candid": "icrc1_ledger.did",
+      "wasm": "icrc1_ledger.wasm.gz",
+      "init": "(variant { Init = record { token_symbol = \"AVOX\"; token_name = \"Avox\"; minting_account = record { owner = principal \"jl2qc-6dkz5-63rvw-vvm2x-6n3te-gn7zn-jw52n-ggq2c-3tnnn-qse5x-mqe\"; }; transfer_fee = 10000; metadata = vec {}; feature_flags = opt record { icrc2 = true }; initial_balances = vec { record { record { owner = principal \"jl2qc-6dkz5-63rvw-vvm2x-6n3te-gn7zn-jw52n-ggq2c-3tnnn-qse5x-mqe\"; }, 1000000000000 } }; archive_options = record { num_blocks_to_archive = 1000; trigger_threshold = 2000; controller_id = principal \"jl2qc-6dkz5-63rvw-vvm2x-6n3te-gn7zn-jw52n-ggq2c-3tnnn-qse5x-mqe\"; cycles_for_archive_creation = opt 10000000000000; } } })"
     }
   },
   "defaults": {

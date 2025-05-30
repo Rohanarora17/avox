@@ -1,3 +1,93 @@
-service : {
-    "greet": (text) -> (text) query;
+type Bounty = record {
+  id : nat64;
+  status : BountyStatus;
+  title : text;
+  creator : principal;
+  winner : opt principal;
+  description : text;
+  prize_amount : nat;
+  deadline : opt nat64;
+  escrow_subaccount : blob;
+  submissions : vec Submission;
+  created_at : nat64;
+  github_issue_url : text;
+  token_ledger : principal;
+};
+type BountyStatus = variant {
+  PendingFunding;
+  Active;
+  Cancelled;
+  Completed;
+  Expired;
+};
+type CanisterStatus = record {
+  last_updated : nat64;
+  bounty_count : nat64;
+  version : text;
+};
+type CreateBountyRequest = record {
+  fee : opt nat;
+  title : text;
+  description : text;
+  prize_amount : nat;
+  deadline : opt nat64;
+  from_subaccount : opt blob;
+  github_issue_url : text;
+  token_ledger : principal;
+};
+type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : nat; Err : text };
+type Result_2 = variant { Ok : record { nat64; text }; Err : text };
+type Result_3 = variant { Ok : text; Err : text };
+type Result_4 = variant { Ok : bool; Err : text };
+type Submission = record {
+  submitter : principal;
+  comment : text;
+  pr_url : text;
+  submitted_at : nat64;
+};
+type SubmitSolutionRequest = record {
+  comment : text;
+  bounty_id : nat64;
+  pr_url : text;
+};
+type UpdateUserProfileRequest = record {
+  twitter : opt text;
+  name : opt text;
+  pfp_url : opt text;
+  github : opt text;
+};
+type UserProfile = record {
+  "principal" : principal;
+  bounties_posted : nat64;
+  twitter : opt text;
+  name : opt text;
+  bounties_won : nat64;
+  pfp_url : opt text;
+  bounties_participated : nat64;
+  github : opt text;
+};
+service : () -> {
+  cancel_bounty : (nat64) -> (Result);
+  claim_reward : (nat64) -> (Result_1);
+  create_bounty : (CreateBountyRequest) -> (Result_2);
+  get_active_bounties : () -> (vec Bounty) query;
+  get_all_bounties : () -> (vec Bounty) query;
+  get_bounties_by_status : (BountyStatus, nat64, nat64) -> (vec Bounty) query;
+  get_bounties_paginated : (nat64, nat64) -> (vec Bounty) query;
+  get_bounty : (nat64) -> (opt Bounty) query;
+  get_escrow_account : (nat64) -> (Result_3) query;
+  get_status : () -> (CanisterStatus) query;
+  get_top_creators : (nat64) -> (vec UserProfile) query;
+  get_top_participants : (nat64) -> (vec UserProfile) query;
+  get_top_winners : (nat64) -> (vec UserProfile) query;
+  get_user_created_bounties : (principal) -> (vec Bounty) query;
+  get_user_profile : (principal) -> (opt UserProfile) query;
+  get_user_submissions : (principal) -> (vec Bounty) query;
+  greet : (text) -> (text) query;
+  refund_expired_bounty : (nat64) -> (Result_1);
+  select_winner : (nat64, principal) -> (Result);
+  submit_solution : (SubmitSolutionRequest) -> (Result);
+  update_user_profile : (UpdateUserProfileRequest) -> (Result);
+  verify_escrow_deposit : (nat64) -> (Result_4);
 }

@@ -23,3 +23,34 @@ dist/
 
 # environment variables
 .env
+
+# DFX/IC build artifacts
+.dfx/
+.vessel/
+canister_ids.json
+
+target/
+Cargo.lock
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local/test
+local/
+
+
+
+# Other temp or environment-specific files
+*.tmp
+*.bak
+*.log
+
+# Artifact/reference
+artifacts/

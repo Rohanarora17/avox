@@ -1,61 +1,160 @@
-# `avox`
+# Avox - Decentralized GitHub Bounty Platform
 
-Welcome to your new `avox` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+Transform GitHub contributions into on-chain rewards. Avox enables open-source maintainers to create bounties for GitHub issues and reward contributors with cryptocurrency on the Internet Computer.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## 🚀 Project Overview
+Avox is a decentralized bounty platform built on the Internet Computer (ICP). Maintainers can create bounties for GitHub issues and pay contributors in any ICRC-1 token (ICP, ckBTC, etc.) using a secure, on-chain escrow system.
 
-To learn more before you start working with `avox`, see the following documentation available online:
-
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
-
-If you want to start working on your project right away, you might want to try the following commands:
+## 🚀 Quick Start
 
 ```bash
-cd avox/
-dfx help
-dfx canister --help
-```
+# Install DFX
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 
-## Running the project locally
+# Clone and setup
+git clone <your-repo>
+cd avox
 
-If you want to test your project locally, you can use the following commands:
+# Start local replica
+dfx start --clean
 
-```bash
-# Starts the replica, running in the background
-dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
+# Deploy canisters
 dfx deploy
+
+# Run test script 
+./scripts/test_flow.sh
 ```
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+## 📋 Project Status
 
-If you have made changes to your backend canister, you can generate a new candid interface with
+**Current Phase**: Milestone 1 - Backend Development 
+- ✅ Bounty creation and management
+- ✅ ICRC-1 token escrow system  (multi-token, secure subaccounts)
+- ✅ Submission and winner selection
+- ✅ User profiles & leaderboards
+- ✅ Pagination and filtering
+- ✅ Health/status monitoring
+- ✅ Deadline/expiry management
+- ✅ Double-claim prevention
+- ✅ Input validation
+- ✅ Memory isolation & stable storage
+- ⏳ Frontend (Milestone 2)
 
+## 🏗️ Architecture
+
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Creator   │────▶│    Backend   │◀────│ Contributor │
+└─────────────┘     │   Canister   │     └─────────────┘
+                    │              │
+                    │  - Bounties  │
+                    │  - Escrow    │
+                    │  - Transfers │
+                    └──────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │ ICRC-1 Token │
+                    │    Ledger    │
+                    └──────────────┘
+```
+
+## 🔧 Core Features
+
+- **Multi-Token Escrow:** Pay bounties in any ICRC-1 token (ICP, ckBTC, etc.) with secure, isolated subaccounts.
+- **Full Bounty Lifecycle:** Create, fund, submit, select winner, claim, cancel, and refund bounties.
+- **User Profiles & Leaderboards:** Track user stats and display top creators, winners, and participants.
+- **Pagination & Filtering:** Efficiently query and discover bounties.
+- **Health/Status Monitoring:** Check canister version, bounty count, and last update.
+- **Deadline/Expiry Management:** Automatic handling of bounty deadlines and refunds.
+- **Security:** Principal-based access control, input validation, double-claim prevention, and stable storage.
+
+## 🛠️ Technical Stack
+
+- **Backend**: Rust
+- **Platform**: Internet Computer Protocol (ICP)
+- **Token Standard**: ICRC-1
+- **State Management**: StableBTreeMap (persistent across upgrades)
+- **Escrow**: Subaccount-based isolation
+
+## 🧪 Testing
+
+### Automated Tests
 ```bash
-npm run generate
+# Run full test flow
+./test_flow.sh
+
 ```
 
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
-
-If you are making frontend changes, you can start a development server with
-
+### Manual Testing
 ```bash
-npm start
+
+
+# Use dfx commands directly
+dfx canister call avox_backend create_bounty '(record {
+  title = "Fix memory leak";
+  description = "Details here";
+  github_issue_url = "https://github.com/example/repo/issues/1";
+  prize_amount = 100000000;
+  token_ledger = principal "<token-ledger-id>";
+})'
 ```
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+## 📊 Bounty Lifecycle
 
-### Note on frontend environment variables
+| Condition                        | Action Allowed         |
+|----------------------------------|-----------------------|
+| Deadline passed, no winner       | Creator can refund    |
+| Deadline passed, winner selected | Only winner can claim |
+| Before deadline                  | Normal flow           |
 
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
+1. **Create** → Maintainer creates bounty with GitHub issue URL and optional deadline
+2. **Fund** → Maintainer deposits tokens to escrow account
+3. **Submit** → Contributors submit PR links (before deadline)
+4. **Select** → Maintainer selects winner (before deadline)
+5. **Claim** → Winner withdraws reward (even after deadline, if selected)
+6. **Refund** → If deadline passes and no winner, creator can refund
 
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
+## 🚦 API Reference
+
+### Update Calls
+- `create_bounty(CreateBountyRequest) → Result<u64, String>`
+- `verify_escrow_deposit(bounty_id: u64) → Result<bool, String>`
+- `submit_solution(SubmitSolutionRequest) → Result<(), String>`
+- `select_winner(bounty_id: u64, winner: Principal) → Result<(), String>`
+- `claim_reward(bounty_id: u64) → Result<Nat, String>`
+- `cancel_bounty(bounty_id: u64) → Result<(), String>`
+- `refund_expired_bounty(bounty_id: u64) → Result<Nat, String>`
+
+### Query Calls
+- `get_bounty(bounty_id: u64) → Option<Bounty>`
+- `get_all_bounties() → Vec<Bounty>`
+- `get_active_bounties() → Vec<Bounty>`
+- `get_user_created_bounties(user: Principal) → Vec<Bounty>`
+- `get_user_submissions(user: Principal) → Vec<Bounty>`
+- `get_escrow_account(bounty_id: u64) → Result<String, String>`
+- `get_bounties_paginated(offset: u64, limit: u64) → Vec<Bounty>`
+- `get_bounties_by_status(status: BountyStatus, offset: u64, limit: u64) → Vec<Bounty>`
+- `get_status() → CanisterStatus`
+- `get_top_creators(limit: u64) → Vec<UserProfile>`
+- `get_top_winners(limit: u64) → Vec<UserProfile>`
+- `get_top_participants(limit: u64) → Vec<UserProfile>`
+
+## 🎯 Roadmap
+
+### Milestone 1 (Current) - Backend
+- [x] Core bounty management
+- [x] ICRC-1 escrow system
+- [x] Submission handling
+- [x] Winner selection
+- [x] Fund transfers
+- [x] Testing suite
+
+### Milestone 2 - Frontend
+- [ ] Next.js web interface
+- [ ] Wallet integration
+- [ ] Bounty discovery
+- [ ] User dashboard
+- [ ] Responsive design
+
+Built with ❤️ on the Internet Computer
