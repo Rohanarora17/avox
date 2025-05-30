@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "avox_backend": {
+      "candid": "src/avox_backend/avox_backend.did",
+      "package": "avox_backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
