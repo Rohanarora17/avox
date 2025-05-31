@@ -36,9 +36,15 @@ Avox is a decentralized bounty platform on the Internet Computer (ICP) that enab
    ```bash
    dfx start --clean
    ```
-2. **Deploy all canisters:**
+2. **Build the canisters**
    ```bash
-   dfx deploy
+   dfx build
+   ```
+
+3. **Deploy all canisters:**
+   ```bash
+   dfx deploy avox_backend 
+   ./scripts/deploy_icrc1_ledger.sh
    ```
 
 ### B. Run the Automated Test Script

@@ -12,14 +12,19 @@ Avox is a decentralized bounty platform built on the Internet Computer (ICP). Ma
 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 
 # Clone and setup
-git clone <your-repo>
+git clone https://github.com/Rohanarora17/avox
 cd avox
 
 # Start local replica
 dfx start --clean
 
+
+#Build 
+dfx build
+
 # Deploy canisters
-dfx deploy
+dfx deploy avox_backend
+./scripts/deploy_icrc1_ledger.sh
 
 # Run test script 
 ./scripts/test_flow.sh
